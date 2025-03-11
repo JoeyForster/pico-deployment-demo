@@ -1,33 +1,30 @@
-# Fetch ubuntu image
-FROM ubuntu:24.04
+# Set minimum required version of CMake
+cmake_minimum_required(VERSION 3.12)
 
-# Install prerequisites
-RUN \
-    apt update && \
-    apt install -y git python3 && \
-    apt install -y cmake gcc-arm-none-eabi libnewlib-arm-none-eabi build-essential
-    
-# Install Pico SDK
-RUN \
-    mkdir -p /project/src/ && \
-    cd /project/ && \
-    git clone https://github.com/raspberrypi/pico-sdk.git --branch master && \
-    cd pico-sdk/ && \
-    git submodule update --init && \
-    cd /
-    
-# Set the Pico SDK environment variable
-ENV PICO_SDK_PATH=/project/pico-sdk/
+# Include build functions from Pico SDK
+include($ENV{PICO_SDK_PATH}/external/pico_sdk_import.cmake)
 
-# Copy in our source files
-COPY src/* /project/src/
+# Set name of project (as PROJECT_NAME) and C/C++ standards
+project(blink C CXX ASM)
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
-# Build project
-RUN \
-    mkdir -p /project/src/build && \
-    cd /project/src/build && \
-    cmake .. && \
-    make
-    
-# Command that will be invoked when the container starts
-ENTRYPOINT ["/bin/bash"]
+# Creates a pico-sdk subdirectory in our project for the libraries
+pico_sdk_init()
+
+# Tell CMake where to find the executable source file
+add_executable(${PROJECT_NAME} 
+    main.c
+)
+
+# Create map/bin/hex/uf2 files
+pico_add_extra_outputs(${PROJECT_NAME})
+
+# Link to pico_stdlib (gpio, time, etc. functions)
+target_link_libraries(${PROJECT_NAME} 
+    pico_stdlib
+)
+
+# Enable usb output, disable uart output
+pico_enable_stdio_usb(${PROJECT_NAME} 1)
+pico_enable_stdio_uart(${PROJECT_NAME} 0)

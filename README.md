@@ -1,7 +1,7 @@
-#Raspberry Pi Pico Deployment Demo
+# Raspberry Pi Pico Deployment Demo
 Example of continuous delivery/deployment for the Raspberry Pi Pico (RP2040).
 
-##Build Project with Docker Locally
+## Build Project with Docker Locally
 You can run the Docker image locally to produce a .uf2 file, which can then be copied directly to your Pico board. Make sure you have Docker Desktop installed and run the following from this directory:
 ```
 docker build -t pico-builder-image .
