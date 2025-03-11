@@ -1,0 +1,12 @@
+# Compiled object files
+*.slo
+*.lo
+*.object
+
+#Executables
+*.uf2
+*.elf
+*.bin
+*.app
+*.out
+*.exe
